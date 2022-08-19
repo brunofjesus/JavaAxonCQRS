@@ -1,0 +1,28 @@
+version: '3.3'
+services:
+  axonserver:
+    image: axoniq/axonserver:latest-dev
+    hostname: axonserver
+    volumes:
+      - type: bind
+        source: ./docker/axon/data
+        target: /axonserver/data
+      - type: bind
+        source: ./docker/axon/events
+        target: /axonserver/events
+      - type: bind
+        source: ./docker/axon/plugins
+        target: /axonserver/plugins
+      - type: bind
+        source: ./docker/axon/config
+        target: /axonserver/config
+        read_only: true
+    ports:
+      - '8024:8024'
+      - '8124:8124'
+      - '8224:8224'
+    networks:
+      - axon-demo
+
+networks:
+  axon-demo:
