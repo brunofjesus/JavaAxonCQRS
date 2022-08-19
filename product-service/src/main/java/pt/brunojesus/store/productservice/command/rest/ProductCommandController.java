@@ -37,19 +37,4 @@ public class ProductCommandController {
 
         return returnValue;
     }
-
-    @GetMapping
-    public String getProduct() {
-        return "HTTP GET handled ";
-    }
-
-    @PutMapping
-    public String updateProduct() {
-        return "HTTP PUT handled";
-    }
-
-    @DeleteMapping
-    public String deleteProduct() {
-        return "HTTP DELETE handled";
-    }
 }
