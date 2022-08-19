@@ -1,4 +1,4 @@
-package pt.brunojesus.store.productservice.rest;
+package pt.brunojesus.store.productservice.command.rest;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,12 +9,12 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/products")
-public class ProductsController {
+public class ProductCommandController {
 
     private final CommandGateway commandGateway;
 
     @Autowired
-    public ProductsController(CommandGateway commandGateway) {
+    public ProductCommandController(CommandGateway commandGateway) {
         this.commandGateway = commandGateway;
     }
 

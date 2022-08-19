@@ -1,4 +1,4 @@
-package pt.brunojesus.store.productservice.rest;
+package pt.brunojesus.store.productservice.command.rest;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
