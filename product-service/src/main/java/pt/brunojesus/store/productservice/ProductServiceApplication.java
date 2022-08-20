@@ -1,12 +1,15 @@
 package pt.brunojesus.store.productservice;
 
 import org.axonframework.commandhandling.CommandBus;
+import org.axonframework.config.EventProcessingConfigurer;
+import org.axonframework.eventhandling.PropagatingErrorHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.ApplicationContext;
 import pt.brunojesus.store.productservice.command.interceptors.CreateProductCommandInterceptor;
+import pt.brunojesus.store.productservice.core.errorhandling.ProductServiceEventsErrorHandler;
 
 
 @EnableDiscoveryClient
@@ -24,6 +27,12 @@ public class ProductServiceApplication {
                 context.getBean(CreateProductCommandInterceptor.class)
         );
 
+    }
+
+    @Autowired
+    public void configure(EventProcessingConfigurer config) {
+        config.registerListenerInvocationErrorHandler("product-group", c -> new ProductServiceEventsErrorHandler());
+//        config.registerListenerInvocationErrorHandler("product-group", c -> PropagatingErrorHandler.instance());
     }
 
 }

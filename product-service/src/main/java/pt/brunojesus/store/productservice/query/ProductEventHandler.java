@@ -2,6 +2,7 @@ package pt.brunojesus.store.productservice.query;
 
 import org.axonframework.config.ProcessingGroup;
 import org.axonframework.eventhandling.EventHandler;
+import org.axonframework.messaging.interceptors.ExceptionHandler;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,11 +22,37 @@ public class ProductEventHandler {
         this.productRepository = productRepository;
     }
 
+    /**
+     * Handles IllegalArgumentExceptions in this class
+     * @param exception
+     */
+    @ExceptionHandler(resultType = IllegalArgumentException.class)
+    public void handle(IllegalArgumentException exception) {
+        // Log error messages
+    }
+
+    /**
+     * Handles Exception in this class
+     * @param exception
+     */
+    @ExceptionHandler(resultType = Exception.class)
+    public void handle(Exception exception) throws Exception {
+        throw exception;
+    }
+
     @EventHandler
-    public void on(ProductCreatedEvent event) {
+    public void on(ProductCreatedEvent event) throws Exception {
         ProductEntity productEntity = new ProductEntity();
         BeanUtils.copyProperties(event, productEntity);
 
-        productRepository.save(productEntity);
+        try {
+            productRepository.save(productEntity);
+        } catch (IllegalArgumentException ex) {
+            ex.printStackTrace();
+        }
+
+//        if (true) {
+//            throw new Exception("Forcing exception in the Event Handler class");
+//        }
     }
 }

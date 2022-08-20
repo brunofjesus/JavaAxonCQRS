@@ -29,13 +29,6 @@ public class ProductCommandController {
                 .title(createProductRestModel.getTitle())
                 .build();
 
-        String returnValue;
-        try {
-            returnValue = commandGateway.sendAndWait(createProductCommand);
-        } catch (Exception e) {
-            returnValue = e.getLocalizedMessage();
-        }
-
-        return returnValue;
+        return commandGateway.sendAndWait(createProductCommand);
     }
 }
