@@ -1,5 +1,6 @@
 package pt.brunojesus.store.productservice.query;
 
+import org.axonframework.config.ProcessingGroup;
 import org.axonframework.eventhandling.EventHandler;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import pt.brunojesus.store.productservice.core.data.ProductRepository;
 import pt.brunojesus.store.productservice.core.event.ProductCreatedEvent;
 
 @Component
+@ProcessingGroup("product-group")
 public class ProductEventHandler {
     //This could also have been called ProductProjection
 
