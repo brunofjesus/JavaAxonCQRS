@@ -1,6 +1,5 @@
 package pt.brunojesus.store.productservice.command;
 
-import com.fasterxml.jackson.databind.util.BeanUtil;
 import org.apache.logging.log4j.util.Strings;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
