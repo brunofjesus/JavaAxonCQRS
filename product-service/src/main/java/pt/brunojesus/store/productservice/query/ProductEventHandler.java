@@ -3,9 +3,12 @@ package pt.brunojesus.store.productservice.query;
 import org.axonframework.config.ProcessingGroup;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.messaging.interceptors.ExceptionHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import pt.brunojesus.store.core.event.ProductReservedEvent;
 import pt.brunojesus.store.productservice.core.data.ProductEntity;
 import pt.brunojesus.store.productservice.core.data.ProductRepository;
 import pt.brunojesus.store.productservice.core.event.ProductCreatedEvent;
@@ -14,6 +17,8 @@ import pt.brunojesus.store.productservice.core.event.ProductCreatedEvent;
 @ProcessingGroup("product-group")
 public class ProductEventHandler {
     //This could also have been called ProductProjection
+
+    private static final Logger logger = LoggerFactory.getLogger(ProductEventHandler.class);
 
     private final ProductRepository productRepository;
 
@@ -42,7 +47,7 @@ public class ProductEventHandler {
 
     @EventHandler
     public void on(ProductCreatedEvent event) throws Exception {
-        ProductEntity productEntity = new ProductEntity();
+        final ProductEntity productEntity = new ProductEntity();
         BeanUtils.copyProperties(event, productEntity);
 
         try {
@@ -54,5 +59,16 @@ public class ProductEventHandler {
 //        if (true) {
 //            throw new Exception("Forcing exception in the Event Handler class");
 //        }
+    }
+
+    @EventHandler
+    public void on(ProductReservedEvent event) {
+        final ProductEntity productEntity = productRepository.findByProductId(event.getProductId());
+        productEntity.setQuantity(productEntity.getQuantity() - event.getQuantity());
+
+        productRepository.save(productEntity);
+
+        logger.info("ProductReservedEvent is called for productId: " + event.getProductId() +
+                " and orderId: " + event.getOrderId());
     }
 }
