@@ -9,11 +9,15 @@ import org.axonframework.spring.stereotype.Saga;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import pt.brunojesus.store.core.command.ProcessPaymentCommand;
 import pt.brunojesus.store.core.command.ReserveProductCommand;
 import pt.brunojesus.store.core.event.ProductReservedEvent;
 import pt.brunojesus.store.core.model.User;
 import pt.brunojesus.store.core.query.FetchUserPaymentDetailsQuery;
 import pt.brunojesus.store.orderservice.core.event.OrderCreatedEvent;
+
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Saga
 public class OrderSaga {
@@ -78,5 +82,26 @@ public class OrderSaga {
         }
 
         logger.info("Successfully fetched user payment details for  " + userPaymentDetails.getFirstName());
+
+        final ProcessPaymentCommand processPaymentCommand = ProcessPaymentCommand.builder()
+                .orderId(productReservedEvent.getOrderId())
+                .paymentDetails(userPaymentDetails.getPaymentDetails())
+                .paymentId(UUID.randomUUID().toString())
+                .build();
+
+        String result = null;
+        try {
+            result = commandGateway.sendAndWait(processPaymentCommand, 10, TimeUnit.SECONDS);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+
+            // Start compensating transaction
+        }
+
+        if (result == null) {
+            logger.info("The ProcessPaymentCommand resulted in NULL. Initiating a compensating transaction");
+
+            // Start compensating transaction
+        }
     }
 }
