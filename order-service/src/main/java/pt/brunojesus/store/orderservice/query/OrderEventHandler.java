@@ -6,6 +6,7 @@ import pt.brunojesus.store.orderservice.core.data.OrderEntity;
 import pt.brunojesus.store.orderservice.core.data.OrderRepository;
 import pt.brunojesus.store.orderservice.core.event.OrderApprovedEvent;
 import pt.brunojesus.store.orderservice.core.event.OrderCreatedEvent;
+import pt.brunojesus.store.orderservice.core.event.OrderRejectedEvent;
 
 @Component
 public class OrderEventHandler {
@@ -41,6 +42,13 @@ public class OrderEventHandler {
 
         order.setOrderStatus(orderApprovedEvent.getOrderStatus());
 
+        orderRepository.save(order);
+    }
+
+    @EventHandler
+    public void handle(OrderRejectedEvent orderRejectedEvent) {
+        final OrderEntity order = orderRepository.findByOrderId(orderRejectedEvent.getOrderId());
+        order.setOrderStatus(orderRejectedEvent.getOrderStatus());
         orderRepository.save(order);
     }
 }

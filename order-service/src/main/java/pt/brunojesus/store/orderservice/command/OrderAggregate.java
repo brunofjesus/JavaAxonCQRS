@@ -8,6 +8,7 @@ import org.axonframework.spring.stereotype.Aggregate;
 import pt.brunojesus.store.orderservice.core.data.OrderStatus;
 import pt.brunojesus.store.orderservice.core.event.OrderApprovedEvent;
 import pt.brunojesus.store.orderservice.core.event.OrderCreatedEvent;
+import pt.brunojesus.store.orderservice.core.event.OrderRejectedEvent;
 
 @Aggregate
 public class OrderAggregate {
@@ -45,6 +46,14 @@ public class OrderAggregate {
         AggregateLifecycle.apply(orderApprovedEvent);
     }
 
+
+    @CommandHandler
+    protected void handle(RejectOrderCommand command) {
+        OrderRejectedEvent orderRejectedEvent = new OrderRejectedEvent(command.getOrderId(), command.getReason());
+
+        AggregateLifecycle.apply(orderRejectedEvent);
+    }
+
     @EventSourcingHandler
     protected void on(OrderCreatedEvent orderCreatedEvent) {
         this.orderId = orderCreatedEvent.getOrderId();
@@ -57,6 +66,11 @@ public class OrderAggregate {
 
     @EventSourcingHandler
     protected void on(OrderApprovedEvent event) {
+        this.orderStatus = event.getOrderStatus();
+    }
+
+    @EventSourcingHandler
+    protected void on(OrderRejectedEvent event) {
         this.orderStatus = event.getOrderStatus();
     }
 }

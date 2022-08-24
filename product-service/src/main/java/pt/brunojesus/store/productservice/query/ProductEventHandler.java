@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import pt.brunojesus.store.core.event.ProductReservationCancelledEvent;
 import pt.brunojesus.store.core.event.ProductReservedEvent;
 import pt.brunojesus.store.productservice.core.data.ProductEntity;
 import pt.brunojesus.store.productservice.core.data.ProductRepository;
@@ -64,11 +65,32 @@ public class ProductEventHandler {
     @EventHandler
     public void on(ProductReservedEvent event) {
         final ProductEntity productEntity = productRepository.findByProductId(event.getProductId());
+
+        logger.debug("ProductReservedEvent: Current product quantity " + productEntity.getQuantity());
+
         productEntity.setQuantity(productEntity.getQuantity() - event.getQuantity());
 
         productRepository.save(productEntity);
 
+        logger.debug("ProductReservedEvent: New product quantity " + productEntity.getQuantity());
+
         logger.info("ProductReservedEvent is called for productId: " + event.getProductId() +
+                " and orderId: " + event.getOrderId());
+    }
+
+    @EventHandler
+    public void on(ProductReservationCancelledEvent event) {
+        final ProductEntity productEntity = productRepository.findByProductId(event.getProductId());
+
+        logger.debug("ProductReservationCancelledEvent: Current product quantity " + productEntity.getQuantity());
+
+        productEntity.setQuantity(productEntity.getQuantity() + event.getQuantity());
+
+        productRepository.save(productEntity);
+
+        logger.debug("ProductReservationCancelledEvent: New product quantity " + productEntity.getQuantity());
+
+        logger.info("ProductReservationCancelledEvent is called for productId: " + event.getProductId() +
                 " and orderId: " + event.getOrderId());
     }
 }

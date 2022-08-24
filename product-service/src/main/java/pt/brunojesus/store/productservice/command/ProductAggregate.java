@@ -7,7 +7,9 @@ import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateLifecycle;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.springframework.beans.BeanUtils;
+import pt.brunojesus.store.core.command.CancelProductReservationCommand;
 import pt.brunojesus.store.core.command.ReserveProductCommand;
+import pt.brunojesus.store.core.event.ProductReservationCancelledEvent;
 import pt.brunojesus.store.core.event.ProductReservedEvent;
 import pt.brunojesus.store.productservice.core.event.ProductCreatedEvent;
 
@@ -58,6 +60,19 @@ public class ProductAggregate {
         AggregateLifecycle.apply(productReservedEvent);
     }
 
+    @CommandHandler
+    public void handle(CancelProductReservationCommand command) {
+        final ProductReservationCancelledEvent event = ProductReservationCancelledEvent.builder()
+                .orderId(command.getOrderId())
+                .productId(command.getProductId())
+                .quantity(command.getQuantity())
+                .reason(command.getReason())
+                .userId(command.getUserId())
+                .build();
+
+        AggregateLifecycle.apply(event);
+    }
+
     @EventSourcingHandler
     public void on(ProductCreatedEvent productCreatedEvent) {
         this.productId = productCreatedEvent.getProductId();
@@ -69,5 +84,10 @@ public class ProductAggregate {
     @EventSourcingHandler
     public void on(ProductReservedEvent productReservedEvent) {
         this.quantity -= productReservedEvent.getQuantity();
+    }
+
+    @EventSourcingHandler
+    public void on(ProductReservationCancelledEvent event) {
+        this.quantity += event.getQuantity();
     }
 }
