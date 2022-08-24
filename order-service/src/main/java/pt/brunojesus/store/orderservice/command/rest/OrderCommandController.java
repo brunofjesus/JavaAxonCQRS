@@ -1,10 +1,16 @@
 package pt.brunojesus.store.orderservice.command.rest;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.messaging.responsetypes.ResponseTypes;
+import org.axonframework.queryhandling.QueryGateway;
+import org.axonframework.queryhandling.SubscriptionQueryResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pt.brunojesus.store.orderservice.command.CreateOrderCommand;
-import pt.brunojesus.store.orderservice.core.data.OrderStatus;
+import pt.brunojesus.store.orderservice.core.model.OrderStatus;
+import pt.brunojesus.store.orderservice.core.model.OrderSummary;
+import pt.brunojesus.store.orderservice.query.FindOrderQuery;
 
 import javax.validation.Valid;
 import java.util.UUID;
@@ -14,17 +20,21 @@ import java.util.UUID;
 public class OrderCommandController {
 
     private final CommandGateway commandGateway;
+    private final QueryGateway queryGateway;
 
     @Autowired
-    public OrderCommandController(CommandGateway commandGateway) {
+    public OrderCommandController(CommandGateway commandGateway, QueryGateway queryGateway) {
         this.commandGateway = commandGateway;
+        this.queryGateway = queryGateway;
     }
 
     @PostMapping
-    public String createOrder(@Valid @RequestBody CreateOrderRestModel createOrderRestModel) {
+    public ResponseEntity<OrderSummary> createOrder(@Valid @RequestBody CreateOrderRestModel createOrderRestModel) {
+
+        final String orderId = UUID.randomUUID().toString();
 
         final CreateOrderCommand createOrderCommand = CreateOrderCommand.builder()
-                .orderId(UUID.randomUUID().toString())
+                .orderId(orderId)
                 .productId(createOrderRestModel.getProductId())
                 .addressId(createOrderRestModel.getAddressId())
                 .quantity(createOrderRestModel.getQuantity())
@@ -32,6 +42,19 @@ public class OrderCommandController {
                 .orderStatus(OrderStatus.CREATED)
                 .build();
 
-        return commandGateway.sendAndWait(createOrderCommand);
+        SubscriptionQueryResult<OrderSummary, OrderSummary> queryResult = queryGateway.subscriptionQuery(
+                new FindOrderQuery(orderId),
+                ResponseTypes.instanceOf(OrderSummary.class),
+                ResponseTypes.instanceOf(OrderSummary.class)
+        );
+
+        try {
+            commandGateway.sendAndWait(createOrderCommand);
+
+            OrderSummary resultBody = queryResult.updates().blockFirst();
+            return ResponseEntity.ok(resultBody);
+        } finally {
+            queryResult.close();
+        }
     }
 }

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pt.brunojesus.store.orderservice.core.model.OrderStatus;
 
 import javax.persistence.*;
 

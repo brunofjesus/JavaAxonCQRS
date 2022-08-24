@@ -2,7 +2,7 @@ package pt.brunojesus.store.orderservice.command;
 
 import lombok.Builder;
 import lombok.Data;
-import pt.brunojesus.store.orderservice.core.data.OrderStatus;
+import pt.brunojesus.store.orderservice.core.model.OrderStatus;
 
 @Data
 @Builder

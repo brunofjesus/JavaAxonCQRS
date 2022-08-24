@@ -5,7 +5,7 @@ import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateLifecycle;
 import org.axonframework.spring.stereotype.Aggregate;
-import pt.brunojesus.store.orderservice.core.data.OrderStatus;
+import pt.brunojesus.store.orderservice.core.model.OrderStatus;
 import pt.brunojesus.store.orderservice.core.event.OrderApprovedEvent;
 import pt.brunojesus.store.orderservice.core.event.OrderCreatedEvent;
 import pt.brunojesus.store.orderservice.core.event.OrderRejectedEvent;
