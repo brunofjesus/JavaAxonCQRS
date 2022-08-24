@@ -4,6 +4,7 @@ import org.axonframework.eventhandling.EventHandler;
 import org.springframework.stereotype.Component;
 import pt.brunojesus.store.orderservice.core.data.OrderEntity;
 import pt.brunojesus.store.orderservice.core.data.OrderRepository;
+import pt.brunojesus.store.orderservice.core.event.OrderApprovedEvent;
 import pt.brunojesus.store.orderservice.core.event.OrderCreatedEvent;
 
 @Component
@@ -27,5 +28,19 @@ public class OrderEventHandler {
                 .build();
 
         orderRepository.save(orderEntity);
+    }
+
+    @EventHandler
+    public void handle(OrderApprovedEvent orderApprovedEvent) {
+        final OrderEntity order = orderRepository.findByOrderId(orderApprovedEvent.getOrderId());
+
+        if (order == null) {
+            // TODO: Do something about it
+            return;
+        }
+
+        order.setOrderStatus(orderApprovedEvent.getOrderStatus());
+
+        orderRepository.save(order);
     }
 }

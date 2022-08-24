@@ -2,6 +2,7 @@ package pt.brunojesus.store.orderservice.saga;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.messaging.responsetypes.ResponseTypes;
+import org.axonframework.modelling.saga.EndSaga;
 import org.axonframework.modelling.saga.SagaEventHandler;
 import org.axonframework.modelling.saga.StartSaga;
 import org.axonframework.queryhandling.QueryGateway;
@@ -11,9 +12,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import pt.brunojesus.store.core.command.ProcessPaymentCommand;
 import pt.brunojesus.store.core.command.ReserveProductCommand;
+import pt.brunojesus.store.core.event.PaymentProcessedEvent;
 import pt.brunojesus.store.core.event.ProductReservedEvent;
 import pt.brunojesus.store.core.model.User;
 import pt.brunojesus.store.core.query.FetchUserPaymentDetailsQuery;
+import pt.brunojesus.store.orderservice.command.ApproveOrderCommand;
+import pt.brunojesus.store.orderservice.core.event.OrderApprovedEvent;
 import pt.brunojesus.store.orderservice.core.event.OrderCreatedEvent;
 
 import java.util.UUID;
@@ -91,7 +95,7 @@ public class OrderSaga {
 
         String result = null;
         try {
-            result = commandGateway.sendAndWait(processPaymentCommand, 10, TimeUnit.SECONDS);
+            result = commandGateway.sendAndWait(processPaymentCommand);
         } catch (Exception ex) {
             logger.error(ex.getMessage());
 
@@ -103,5 +107,21 @@ public class OrderSaga {
 
             // Start compensating transaction
         }
+    }
+
+    @SagaEventHandler(associationProperty = "orderId")
+    public void handle(PaymentProcessedEvent paymentProcessedEvent) {
+        // Send an ApproveOrderCommand
+        final ApproveOrderCommand approveOrderCommand = new ApproveOrderCommand(paymentProcessedEvent.getOrderId());
+
+        commandGateway.send(approveOrderCommand);
+    }
+
+    @EndSaga
+    @SagaEventHandler(associationProperty = "orderId")
+    public void handle(OrderApprovedEvent orderApprovedEvent) {
+        logger.info("Order is approved. OrderSaga completed for orderId: " + orderApprovedEvent.getOrderId());
+
+        //SagaLifecycle.end();
     }
 }
