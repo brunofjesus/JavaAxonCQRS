@@ -15,7 +15,7 @@ import pt.brunojesus.store.productservice.core.event.ProductCreatedEvent;
 
 import java.math.BigDecimal;
 
-@Aggregate
+@Aggregate(snapshotTriggerDefinition = "productSnapshotTriggerDefinition")
 public class ProductAggregate {
 
     @AggregateIdentifier
