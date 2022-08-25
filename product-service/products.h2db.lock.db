@@ -1,6 +1,6 @@
 #FileLock
-#Wed Aug 24 01:51:44 WEST 2022
-server=192.168.1.79\:55751
+#Thu Aug 25 22:26:21 WEST 2022
+server=192.168.1.79\:62819
 hostName=bruno-mbp.lan
 method=file
-id=182cd556f25fed1c9d3567523bc1436b10e7f86d69f
+id=182d6e61d5b3e828fee8b08d6e584dd8f2065eaee3c
